@@ -1,0 +1,30 @@
+# --- Core Framework & UI ---
+streamlit>=1.31.0
+python-dotenv>=1.0.0
+
+# --- Agentic Orchestration ---
+google-generativeai>=0.4.0
+langchain>=0.1.0
+crewai>=0.20.0
+
+# --- Level 1: Price Hunter (Scraping & Data) ---
+pandas>=2.1.0
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+playwright>=1.41.0
+
+# --- Level 2: Verification (OCR & Medical NLP) ---
+pytesseract>=0.3.10
+easyocr>=1.7.0
+spacy>=3.7.0
+scispacy>=0.5.3
+# Note: scispacy also requires specific models like en_core_sci_sm
+
+# --- Level 3: Integrity (Computer Vision) ---
+opencv-python>=4.9.0
+Pillow>=10.2.0
+numpy>=1.26.0
+
+# --- Utilities ---
+pydantic>=2.6.0
+loguru>=0.7.0
