@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-def fetch_online_price(med_name):
+def fetch_online_results(med_name):
     # Standard headers to prevent being blocked
     headers = {'User-Agent': 'Mozilla/5.0'}
     url = f"https://www.1mg.com/search/all?name={med_name}"
