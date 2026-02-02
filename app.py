@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from agents.price_agents import hunt_best_deal
 
 # 1. Page Configuration (Set to Dark Mode by Default)
 st.set_page_config(
@@ -73,9 +74,20 @@ with col1:
     with st.container():
         st.markdown('<div class="metallic-card">', unsafe_allow_html=True)
         st.subheader("💊 Search Medicine")
+        # User Input
         med_name = st.text_input("Enter Medicine Name (e.g., Azoran 50mg)", placeholder="Start typing...")
         if st.button("HUNT PRICE"):
-            st.success(f"Searching for {med_name} across the grid...")
+            if med_name: # Simple validation
+                with st.spinner('Hunting the best deal...'):
+                    # This is where the request happens
+                    result = hunt_best_deal(med_name)
+
+                    # Display Response in the UI
+                    st.markdown("---")
+                    st.markdown(f"### 🎯 Results for {med_name}")
+                    st.info(result)
+            else:
+                st.warning("Please enter a medicine name to proceed.")
         st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
