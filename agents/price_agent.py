@@ -1,11 +1,12 @@
 import pandas as pd
 import google.generativeai as genai
 import json
+import streamlit as st
 from rapidfuzz import process, fuzz
 from utils.scraper import fetch_online_results # Change this to return a LIST of results
 
 # Initialize Gemini (Make sure to set your API key)
-genai.configure(api_key="YOUR_GEMINI_API_KEY")
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 def get_fuzzy_local_matches(query, df):
     choices = df['medicine_name'].tolist()
@@ -34,40 +35,43 @@ def hunt_best_deal(query):
     
     # 4. THE AGENTIC BRAIN (LLM Reasoning)
     prompt = f"""
-    You are the NexusRx AI Engine.
-    User Query: "{query}"
-    Local Inventory: {local_context}
-    Online Results: {online_results}
+    You are the NexusRx AI Engine. 
+    User is searching for: "{query}"
+    
+    LOCAL DATA: {local_context}
+    ONLINE DATA: {online_results}
 
     TASK:
-    Analyze the stock and prices. Return a STRICT JSON object with this exact schema:
+    - Standardize the name and composition of the medicine.
+    - Compare prices across Local and Online results.
+    - If the exact medicine is unavailable, find the closest match.
+    
+    Return ONLY a JSON object:
     {{
         "medicine_info": {{
-            "name": "Standardized Name (e.g., Calpol 650)",
-            "composition": "Chemical Composition (e.g., Paracetamol 650mg)",
-            "is_out_of_stock_everywhere": boolean,
-            "alternative_suggested": "Name of alternative if primary is OOS, else null"
+            "name": "Standardized Name",
+            "composition": "Chemical Ingredients",
+            "is_out_of_stock_everywhere": boolean
         }},
-        "agent_verdict": "Short, punchy 2-sentence summary of the best deal.",
+        "agent_verdict": "A 1-sentence sharp comparison of the best deal.",
         "listings": [
             {{
-                "store_name": "Store Name",
-                "price": "Price in numbers (e.g. 30.50)",
+                "store_name": "Store/Site Name",
+                "price": 123.45,
                 "type": "Local" or "Online",
                 "stock_status": "In Stock" or "Out of Stock",
                 "badge": "Best Value" or "Fastest" or null
             }}
         ]
     }}
-    Do not add markdown formatting like ```json. Just return the raw JSON string.
     """
     
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('models/gemini-2.0-flash')
     response = model.generate_content(prompt)
     
     # Clean and parse JSON
     try:
-        clean_text = response.text.replace('```json', '').replace('```', '')
+        clean_text = response.text.replace('```json', '').replace('```', '').strip()
         return json.loads(clean_text)
     except Exception as e:
         return {"error": "Agent parsing failed", "raw": response.text}
